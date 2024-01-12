@@ -1,46 +1,55 @@
 jobs:
   - name: data-cleaning
     stages:
-      - name: "clean-base-tables"
-        tasks:
-          - name: "product"
-            params: {}
-          - name: "orders"
-            params: {}
+        - name: 'clean-base-tables'
+          tasks:
+            - name: 'housing'
+              params: {}
 
-      - name: "clean-derivative-tables"
-        tasks:
-          - name: "sales"
-            params: {}
-      - name: "train-test-split"
-        tasks:
-          - name: "train-test"
-            params:
-              target: unit_price
-              test_size: 0.2
+        - name: 'train-test-split'
+          tasks:
+            - name: 'train-test'
+              params:
+                target: median_house_value
+                test_size: 0.2
 
   - name: feat-engg
     stages:
-      - name: "feature-pipelines"
-        tasks:
-          - name: "transform-features"
-            params:
-              outliers:
-                method: mean
-                drop: False
-              sampling_fraction: 0.1
+        - name: 'feature-pipelines'
+          tasks:
+            - name: 'transform-features'
+              params:
+                outliers:
+                  method: mean
+                  drop: False
+                sampling_fraction: 0.1
 
   - name: model-gen
     stages:
-      - name: "model-creation"
-        tasks:
-          - name: "train-model"
-            params:
-              sampling_fraction: 0.1
+        - name: 'model-creation'
+          tasks:
+            - name: 'train-model'
+              params:
+                sampling_fraction: 0.1
+                xgb:
+                  gamma: 0.3
+                  min_child_weight: 6
+                  learning_rate: 0.1
+                  max_depth: 5
+                  n_estimators: 500
 
   - name: model-eval
     stages:
-      - name: "model-predict"
+        - name: 'model-predict'
+          tasks:
+            - name: 'score-model'
+              params: {}
+
+  - name: mlflow
+    stages:
+      - name: "track-process"
         tasks:
-          - name: "score-model"
-            params: {}
+          - name: "run-mlflow"
+            params:
+              exp_name: "House_Price_Prediction"
+              remote_server_uri: "http://localhost:5000/"
